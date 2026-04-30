@@ -4,3 +4,4 @@ Build optimization step 3
 Build optimization step 4
 Build optimization step 5
 Build optimization step 6
+Build optimization step 7

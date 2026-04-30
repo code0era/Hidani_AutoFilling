@@ -1,2 +1,3 @@
 Build optimization step 1
 Build optimization step 2
+Build optimization step 3

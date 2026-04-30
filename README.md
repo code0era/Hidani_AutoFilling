@@ -18,6 +18,13 @@ Design and develop a Manifest V3 Chrome extension that:
 
 ---
 
+## Screenshots
+<img width="735" height="920" alt="image" src="https://github.com/user-attachments/assets/591f489e-0369-4784-8122-c8a2cb2ce41a" />
+<img width="735" height="920" alt="image" src="https://github.com/user-attachments/assets/9da1336c-9bc6-4629-857c-3696de6f199d" />
+
+<img width="735" height="920" alt="image" src="https://github.com/user-attachments/assets/a9b8a862-48e7-4843-8e9f-c53c31d7bf8a" />
+
+
 ## 🏛️ System Architecture
 
 ```mermaid

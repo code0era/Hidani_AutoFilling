@@ -64,18 +64,30 @@ We leverage **Gemini 1.5 Flash** for parsing resumes. This provides a massive 1-
 
 ## 🚀 Quick Start & Installation
 
-### **1. Install the Extension**
-1.  **Build**: Run `npm install` and then `npm run build`.
-2.  **Load**: Open `chrome://extensions/` and toggle **Developer mode**.
-3.  **Action**: Click **Load unpacked** and select the `dist` folder.
+### **The "Unpacked" Route (For Users & Hiring Managers)**
+You can install the extension without running any code by following these steps:
 
-### **2. Usage Workflow**
-1.  **Auth**: Register an account via the popup's Lock icon.
-2.  **Upload**: Upload your PDF resume in the Dashboard.
-3.  **Sync**: Click **Sync Profile** to push to the Cloud.
-4.  **Fill**: Visit any form (e.g., [Nvidia WorkDay](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/details/ASIC-Design-Engineer---Circuits_JR2016640)) and click the **Magic Zap Button**.
+1.  **Download**: Go to the [Releases](https://github.com/code0era/Hidani_AutoFilling/releases) section of this repository and download the `dist.zip` file.
+2.  **Extract**: Unzip the file on your computer.
+3.  **Load**: Open Chrome and navigate to `chrome://extensions/`.
+4.  **Developer Mode**: Toggle on **Developer mode** (top right corner).
+5.  **Install**: Click **Load unpacked** and select the extracted `dist` folder.
+6.  **Done!**: The AutoForm AI icon will appear in your toolbar.
+
+### **The Developer Route (Build from Source)**
+1.  **Clone**: `git clone https://github.com/code0era/Hidani_AutoFilling.git`
+2.  **Install**: `npm install`
+3.  **Build**: `npm run build`
+4.  **Load**: Follow the "Load unpacked" steps above using the newly created `dist` folder.
 
 ---
+
+## 📽️ Demo & Documentation
+*   **Demo Video**: [Watch the AI in Action (Loom)](https://www.loom.com/share/a7b818f386d843999031488fc6d2c672)
+*   **Deliverables Checklist**: [View DELIVERABLES.md](./DELIVERABLES.md)
+
+---
+
 
 ## ⚠️ Limitations & Considerations
 *   **Shadow DOM**: Fields hidden inside strict Shadow DOMs (rare in ATS) may require manual clicking first.

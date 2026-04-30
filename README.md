@@ -4,6 +4,26 @@ AutoForm AI is a high-performance, cloud-synchronized browser extension designed
 
 ---
 
+## 🚀 Quick Start & Installation
+
+### **1. Install the Extension**
+1.  **Build**: Run `npm install` and then `npm run build` in the root directory.
+2.  **Load**: Open Chrome and navigate to `chrome://extensions/`.
+3.  **Developer Mode**: Toggle on "Developer mode" in the top right.
+4.  **Load Unpacked**: Click "Load unpacked" and select the **`dist`** folder created by the build command.
+
+### **2. Setup Your Identity**
+1.  **Open Popup**: Click the AutoForm icon in your toolbar.
+2.  **Register**: Go to the **Lock icon** tab and create your cloud account.
+3.  **Ingest Data**: Go to the **Dashboard**, upload your Resume PDF, and click **Sync Profile**.
+
+### **3. Autofill Any Form**
+1.  Navigate to any job application (Greenhouse, Workday, Google Forms, etc.).
+2.  Click the **Magic Zap Button** in the bottom-right corner.
+3.  Watch the AI interpret the fields and populate your data instantly!
+
+---
+
 ## 🏛️ System Architecture
 
 ```mermaid
@@ -55,25 +75,6 @@ graph TD
 *   **Database**: MongoDB Atlas (NoSQL with Mixed-Object Schema for flexible user data)
 *   **Security**: JWT-based Authentication & Bcrypt Password Hashing
 *   **API**: RESTful architecture with CORS-enabled secure endpoints
-
----
-
-## 🔄 The "Magic" Workflow
-
-1.  **Ingestion**: The user uploads a PDF. The **Gemini Core** parses the raw text into a structured JSON profile.
-2.  **Cloud Sync**: The profile is instantly encrypted and mirrored to the **MongoDB Cloud** via the Node.js API.
-3.  **Detection**: On any website, the **Universal Detector** scans for 3+ input fields or specific ATS signatures (Greenhouse, Workday, etc.).
-4.  **Deep Scan**: When the "Magic Button" is clicked, the **DOM Scraper** gathers metadata from every input box.
-5.  **Interpretation**: The **AI Mapper** receives the metadata and decides: *"This 'Handle' field on this site is actually the user's Preferred Name."*
-6.  **Automation**: The engine populates the fields and simulates user input events (input/change) to ensure the website accepts the data.
-
----
-
-## 🚀 Deployment Status
-
-*   **Backend**: Live on Render (`https://hidani-autofilling.onrender.com`)
-*   **Database**: Production-ready MongoDB Atlas Cluster
-*   **Version**: `1.0.0-PROD` (Manifest V3)
 
 ---
 

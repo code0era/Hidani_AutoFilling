@@ -12,8 +12,9 @@ The complete source code including the Frontend (React/Vite) and Backend (Node/M
 
 ## 2. Chrome Extension Build
 The production-ready build is packaged as a `.zip` in the GitHub Releases section.
+*   **Release Link**: [https://github.com/code0era/Hidani_AutoFilling/releases/tag/WEB_extension](https://github.com/code0era/Hidani_AutoFilling/releases/tag/WEB_extension)
 *   **Installation Method**: Load Unpacked (Developer Mode).
-*   **Build Folder**: `dist/`
+
 
 ## 3. Documentation
 Comprehensive documentation is integrated into the root [README.md](./README.md), including:

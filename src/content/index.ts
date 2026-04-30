@@ -2,31 +2,38 @@ import { detectForm } from './detector';
 import { autofillForm } from './filler';
 import { trackSubmission } from './tracker';
 import { UserData } from '@/types';
+import { injectOverlay } from './Overlay';
 
 // Initialize tracking
 trackSubmission();
+
+const handleAutofillAction = () => {
+  chrome.storage.local.get(['userData'], (result: { userData?: UserData }) => {
+    if (result.userData) {
+      const formType = detectForm();
+      console.log(`AutoForm AI: Starting Magic Autofill for [${formType}]...`);
+      autofillForm(result.userData, formType || 'unknown');
+    } else {
+
+      console.error('AutoForm AI: No user data found in storage.');
+      // Optionally notify user
+    }
+  });
+};
 
 const init = async () => {
   const formType = detectForm();
   if (formType) {
     console.log(`AutoForm AI: Detected ${formType} form`);
-    
-    // Check if we should autofill (e.g., if user clicked a button in popup)
-    // For now, we'll listen for a message from the popup
+    injectOverlay(handleAutofillAction);
   }
 };
 
 chrome.runtime.onMessage.addListener((request: any, _sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
   if (request.action === 'autofill') {
-    chrome.storage.local.get(['userData'], (result: { userData?: UserData }) => {
-      if (result.userData) {
-        autofillForm(result.userData);
-        sendResponse({ success: true });
-      } else {
-        sendResponse({ success: false, error: 'No user data found' });
-      }
-    });
-    return true; // Keep channel open for async response
+    handleAutofillAction();
+    sendResponse({ success: true });
+    return true;
   }
 });
 

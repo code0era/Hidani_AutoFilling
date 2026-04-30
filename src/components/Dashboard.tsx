@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Upload, FileText, Loader2, Sparkles, MousePointer2 } from 'lucide-react';
+import { Upload, FileText, Loader2, Sparkles, MousePointer2, ArrowRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { extractTextFromPdf, structureResumeData } from '@/services/pdf-parser';
+import { motion } from 'framer-motion';
 
 const Dashboard = () => {
   const [isParsing, setIsParsing] = useState(false);
@@ -19,7 +20,7 @@ const Dashboard = () => {
         toast({
           title: "Invalid file type",
           description: "Please upload a PDF resume.",
-          variant: "destructive",
+          variant: "error",
         });
         return;
       }
@@ -33,7 +34,7 @@ const Dashboard = () => {
       toast({
         title: "Missing Resume",
         description: "Please upload a candidate resume first.",
-        variant: "destructive",
+        variant: "info",
       });
       return;
     }
@@ -41,36 +42,49 @@ const Dashboard = () => {
     setIsParsing(true);
     
     try {
-      // 1. Get API Keys
       const result = await chrome.storage.local.get(['geminiKey', 'groqKey']);
       const geminiKey = result.geminiKey as string | undefined;
       const groqKey = result.groqKey as string | undefined;
 
-      if (!geminiKey && !groqKey) {
-        throw new Error('Please add your Groq or Gemini API Key in the Settings tab.');
-      }
-
-      // 2. Extract Text
       const text = await extractTextFromPdf(file);
+      const structuredData = await structureResumeData(text, { geminiKey, groqKey });
+      const updatedData = { ...structuredData, lastUpdated: new Date().toISOString() };
       
-      // 3. AI Structuring
-      const structuredData = await structureResumeData(text, { 
-        geminiKey, 
-        groqKey 
-      });
+      // Save Local
+      await chrome.storage.local.set({ userData: updatedData });
+
+      // Sync to Cloud if logged in
+      const token = localStorage.getItem('token');
+      let cloudSyncStatus = '';
       
-      // 4. Save to Storage
-      await chrome.storage.local.set({ userData: { ...structuredData, lastUpdated: new Date().toISOString() } });
+      if (token) {
+        try {
+          const response = await fetch('https://hidani-autofilling.onrender.com/api/profile', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'x-auth-token': token 
+            },
+            body: JSON.stringify(updatedData)
+          });
+          if (response.ok) {
+            cloudSyncStatus = ' & Cloud Core Synced';
+          }
+        } catch (error) {
+          console.error('Cloud auto-sync failed:', error);
+        }
+      }
 
       toast({
         title: "Success!",
-        description: "Resume parsed and profile updated.",
+        description: `Resume parsed${cloudSyncStatus}. Profile updated.`,
+        variant: "success",
       });
     } catch (error: any) {
       toast({
         title: "Parsing Failed",
         description: error.message || "An error occurred during extraction.",
-        variant: "destructive",
+        variant: "error",
       });
     } finally {
       setIsParsing(false);
@@ -85,12 +99,13 @@ const Dashboard = () => {
           toast({
             title: "Magic Autofill Success",
             description: "Data has been populated into the form.",
+            variant: "success",
           });
         } else {
           toast({
             title: "Autofill Failed",
             description: response?.error || "Could not find a form to fill.",
-            variant: "destructive",
+            variant: "error",
           });
         }
       });
@@ -98,27 +113,30 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
-      <div className="text-center space-y-2">
-        <h2 className="text-3xl font-extrabold text-green-700 tracking-tight">
-          Resume NLP Matcher
+    <div className="flex flex-col gap-6">
+      <div className="space-y-1">
+        <h2 className="text-2xl font-black tracking-tight">
+          Automation <span className="text-gradient">Hub</span>
         </h2>
-        <p className="text-sm text-muted-foreground font-medium">
-          Rule-based Parsing completely independent of Generalized AI models.
+        <p className="text-xs text-muted-foreground font-medium flex items-center gap-1">
+          <Sparkles className="w-3 h-3 text-primary" /> AI-powered form intelligence
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
         {/* 1. Target Job Description */}
-        <Card className="border-2 border-muted/50 shadow-sm hover:border-primary/20 transition-all">
+        <Card className="glass-card border-none overflow-hidden">
           <CardContent className="p-4 space-y-3">
-            <h3 className="font-bold text-base flex items-center gap-2">
-              <span className="bg-primary/10 text-primary w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
-              Target Job Description
-            </h3>
+            <div className="flex justify-between items-center">
+              <h3 className="font-bold text-sm flex items-center gap-2">
+                <span className="w-5 h-5 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-[10px]">01</span>
+                Job Context
+              </h3>
+              <span className="text-[10px] text-muted-foreground bg-white/5 px-2 py-0.5 rounded-full border border-white/5">Optional</span>
+            </div>
             <textarea
-              placeholder="Paste the target job description here..."
-              className="w-full h-32 p-3 text-sm rounded-md border border-input bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none"
+              placeholder="Paste job requirements to optimize filling..."
+              className="w-full h-24 p-3 text-xs rounded-xl bg-white/5 border border-white/10 focus:border-primary/50 outline-none transition-all resize-none placeholder:text-muted-foreground/50"
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
             />
@@ -126,11 +144,11 @@ const Dashboard = () => {
         </Card>
 
         {/* 2. Candidate Resume Profile */}
-        <Card className="border-2 border-muted/50 shadow-sm hover:border-primary/20 transition-all">
+        <Card className="glass-card border-none overflow-hidden">
           <CardContent className="p-4 space-y-3">
-            <h3 className="font-bold text-base flex items-center gap-2">
-              <span className="bg-primary/10 text-primary w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
-              Candidate Resume Profile
+            <h3 className="font-bold text-sm flex items-center gap-2">
+              <span className="w-5 h-5 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-[10px]">02</span>
+              Resume Source
             </h3>
             <div className="relative group">
               <input
@@ -139,22 +157,22 @@ const Dashboard = () => {
                 onChange={handleFileUpload}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
-              <div className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-3 transition-all ${fileName ? 'bg-primary/5 border-primary/50' : 'bg-muted/30 border-muted group-hover:border-primary/50 group-hover:bg-primary/5'}`}>
+              <div className={`border border-dashed rounded-xl p-6 flex flex-col items-center justify-center gap-3 transition-all ${fileName ? 'bg-primary/5 border-primary/30' : 'bg-white/5 border-white/10 group-hover:bg-white/10 group-hover:border-primary/30'}`}>
                 {fileName ? (
-                  <>
-                    <div className="w-12 h-12 bg-primary/20 text-primary rounded-full flex items-center justify-center">
-                      <FileText className="w-6 h-6" />
+                  <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="flex flex-col items-center gap-2 text-center">
+                    <div className="w-10 h-10 bg-primary/20 text-primary rounded-xl flex items-center justify-center">
+                      <FileText className="w-5 h-5" />
                     </div>
-                    <p className="text-sm font-semibold text-primary">{fileName}</p>
-                    <button onClick={(e) => { e.stopPropagation(); setFileName(null); }} className="text-xs text-muted-foreground hover:text-destructive underline">Change file</button>
-                  </>
+                    <p className="text-xs font-bold text-primary truncate max-w-[200px]">{fileName}</p>
+                    <button onClick={(e) => { e.stopPropagation(); setFileName(null); }} className="text-[10px] text-muted-foreground hover:text-destructive transition-colors">Change Document</button>
+                  </motion.div>
                 ) : (
                   <>
-                    <div className="w-12 h-12 bg-primary/10 text-primary/60 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Upload className="w-6 h-6" />
+                    <div className="w-10 h-10 bg-white/5 text-muted-foreground rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:bg-primary/20 group-hover:text-primary transition-all duration-500">
+                      <Upload className="w-5 h-5" />
                     </div>
-                    <p className="text-sm text-muted-foreground text-center">
-                      Drag & drop a PDF resume here, or <span className="text-primary font-semibold">click to browse</span>
+                    <p className="text-[10px] text-muted-foreground text-center">
+                      Drop PDF or <span className="text-primary font-bold">Browse</span>
                     </p>
                   </>
                 )}
@@ -164,35 +182,34 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-col gap-3">
         <Button 
           onClick={handleRunEngine}
           disabled={isParsing}
-          className="h-12 text-sm font-bold bg-[#10b981] hover:bg-[#059669] text-white shadow-lg shadow-green-500/20 active:scale-95 transition-all"
+          className="premium-button h-12 text-sm font-bold rounded-2xl shadow-[0_0_20px_rgba(124,58,237,0.3)] w-full"
         >
           {isParsing ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
-            <>
-              <Sparkles className="mr-2 h-4 w-4" />
-              Parse Resume
-            </>
+            <span className="flex items-center gap-2">
+              Sync Profile <ArrowRight className="w-4 h-4" />
+            </span>
           )}
         </Button>
 
         <Button 
           onClick={handleAutofill}
           variant="outline"
-          className="h-12 text-sm font-bold border-2 border-primary/20 text-primary hover:bg-primary/5 active:scale-95 transition-all"
+          className="h-12 text-sm font-bold border-white/10 glass bg-white/5 text-white hover:bg-white/10 hover:border-white/20 rounded-2xl active:scale-95 transition-all w-full"
         >
-          <MousePointer2 className="mr-2 h-4 w-4" />
-          Magic Fill
+          <MousePointer2 className="mr-2 h-4 w-4 text-primary" />
+          Magic Autofill
         </Button>
       </div>
 
       {isParsing && (
-        <div className="text-center space-y-1">
-          <p className="text-xs text-muted-foreground animate-pulse">Processing resume using rule-based NLP...</p>
+        <div className="text-center">
+          <p className="text-[10px] text-muted-foreground animate-pulse tracking-widest uppercase">Engine analyzing resume structure...</p>
         </div>
       )}
     </div>

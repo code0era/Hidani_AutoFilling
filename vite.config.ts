@@ -1,29 +1,26 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { crx } from '@crxjs/vite-plugin'
+import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
-import { resolve } from 'path'
+import manifest from './src/manifest'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    tailwindcss(),
+    react(),
+    crx({ manifest }),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  build: {
-    rollupOptions: {
-      input: {
-        popup: resolve(__dirname, 'index.html'),
-        background: resolve(__dirname, 'src/background/index.ts'),
-        content: resolve(__dirname, 'src/content/index.ts'),
-      },
-      output: {
-        entryFileNames: (chunkInfo) => {
-          return chunkInfo.name === 'background' || chunkInfo.name === 'content'
-            ? 'src/[name]/index.js'
-            : 'assets/[name]-[hash].js';
-        },
-      },
+  server: {
+    port: 5173,
+    strictPort: true,
+    hmr: {
+      port: 5173,
     },
   },
 })

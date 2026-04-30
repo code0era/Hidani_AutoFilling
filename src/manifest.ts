@@ -18,10 +18,17 @@ export default defineManifest({
   },
   content_scripts: [
     {
-      matches: ['*://*.greenhouse.io/*', '*://*.myworkdayjobs.com/*'],
+      matches: ['<all_urls>'],
       js: ['src/content/index.ts'],
     },
   ],
   permissions: ['storage', 'activeTab', 'scripting'],
-  host_permissions: ['*://*.greenhouse.io/*', '*://*.myworkdayjobs.com/*'],
+  host_permissions: ['<all_urls>'],
+
+  web_accessible_resources: [
+    {
+      resources: ['assets/*', 'src/assets/*'],
+      matches: ['<all_urls>'],
+    },
+  ],
 })

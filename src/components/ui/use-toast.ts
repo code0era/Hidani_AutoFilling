@@ -4,7 +4,8 @@ interface Toast {
   id: string;
   title?: string;
   description?: string;
-  variant?: 'default' | 'destructive';
+  variant?: 'default' | 'destructive' | 'success' | 'error' | 'info';
+
 }
 
 let subscribers: ((toasts: Toast[]) => void)[] = [];
